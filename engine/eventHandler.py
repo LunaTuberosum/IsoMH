@@ -30,10 +30,7 @@ class EventHandler():
 
             if event.type == pygame.MOUSEBUTTONUP:
                 self.drag = False
-
-            
-
-
+                
         self.keyHandler.keyup()
 
         self.mapHandler.draw(self.offset.x, self.offset.y)

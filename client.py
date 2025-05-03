@@ -1,18 +1,19 @@
 from engine.settings import *
 from engine.eventHandler import EventHandler
+from debug import Debug
 
 class Main():
     def __init__(self) -> None:
         pygame.init()
+        pygame.key.set_repeat(200, 200)
         
-        self._d_font: pygame.Font = pygame.font.SysFont("Arial", 10)
-        self._debug: bool = True
-
         self.screen: pygame.Surface = pygame.surface.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.display: pygame.Surface = pygame.display.set_mode((display_width, display_height))
+        pygame.display.set_caption('Client')
         self.clock: pygame.Clock = pygame.time.Clock()
 
         self.__setUpHandlers()
+        self.debug: Debug = Debug(self)
         
     def __setUpHandlers(self) -> None:
         self.eventHandler: EventHandler = EventHandler(self)
@@ -35,7 +36,8 @@ class Main():
 
             self.eventHandler.checkEvent(delta)
 
-            if self._debug: self.screen.blit(self._d_font.render(f'FPS: {round(self.clock.get_fps())}', False, '#ffffff'), (5, 2))
+            self.debug.draw()
+
             self.__scaleScreenToDisplay()
 
             pygame.display.flip()
