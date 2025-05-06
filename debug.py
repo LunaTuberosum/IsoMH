@@ -10,7 +10,8 @@ class Debug():
 
         self.components: list[str] = [
             f'FPS: {round(self.client.clock.get_fps())}',
-            f'MAP: {self.client.eventHandler.mapHandler.currentMapName}'
+            f'MAP: {self.client.eventHandler.mapHandler.currentMapName}',
+            f'[X, Y]: {self.client.eventHandler.currentGrid}'
         ]
 
     def toggleActive(self) -> None:
@@ -27,6 +28,12 @@ class Debug():
 
     def draw(self) -> None:
         if not self.__active: return
+
+        self.components = [
+            f'FPS: {round(self.client.clock.get_fps())}',
+            f'MAP: {self.client.eventHandler.mapHandler.currentMapName}',
+            f'[X, Y]: {self.client.eventHandler.currentGrid}'
+        ]
 
         _x: int = 5
         _y: int = 2

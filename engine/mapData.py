@@ -1,4 +1,5 @@
 from engine.settings import *
+from engine.tileData import TileData
 import csv
 import os
 
@@ -9,10 +10,11 @@ class MapData():
         self.tileset: list[pygame.Surface] = []
         self.__makeTileset()
 
-        self.layers: list[list[list[int]]] = []
+        self.layers: list[list[list[list[int]]]] = []
         self.__makeLayerData()
 
-        self.drawMap()
+        self.tiles: list[TileData] = []
+        self.__makeMap()
 
     def __makeLayerData(self) -> None:
         _numOfLayers: list[str] = os.listdir(f'.\\engine\\maps\\{self.mapName}\\Map Data')
@@ -30,7 +32,7 @@ class MapData():
 
             self.layers.append(_layerArr)
 
-        self.mapImage: pygame.Surface = pygame.Surface((64 * TILE_SIZE, 64 * TILE_SIZE))
+        self.mapImage: pygame.Surface = pygame.Surface((100 * TILE_SIZE, 100 * TILE_SIZE))
 
     def __makeTileset(self) -> None:
         _image: pygame.Surface = pygame.image.load(f'.\\engine\\maps\\{self.mapName}\\Tileset.png').convert_alpha()
@@ -48,14 +50,21 @@ class MapData():
 
                 self.tileset.append(_tile)
 
-    def drawMap(self) -> None:
-        for _i, _layer in enumerate(self.layers):
+    def __makeMap(self) -> None:
+        for _layer in self.layers:
             for _section in _layer:
-                _x: int = 128
+                _x: int = 0
                 _y: int = 0
                 for _row in _section:
+
                     for _col in _row:
-                        self.mapImage.blit(self.tileset[int(_col)], (_x - _y, (_x + _y) / 2))
-                        _x += TILE_SIZE / 2
-                    _y += TILE_SIZE / 2
-                    _x: int = 128
+                        if _col != '-1':
+                            self.tiles.append(TileData([_x // 16, _y // 16], [_x + (TILE_SIZE * 32), _y], self.tileset[int(_col)], _col))
+                        _x += TILE_SIZE // 2
+                    _y += TILE_SIZE // 2
+                    _x: int = 0
+
+    def drawMap(self, x_offset: int, y_offset: int) -> None:
+        self.mapImage.fill('#000000')
+        for _tile in self.tiles:
+            _tile.draw(self.mapImage, x_offset, y_offset)
