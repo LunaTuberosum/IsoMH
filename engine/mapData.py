@@ -1,6 +1,8 @@
 from engine.settings import *
 from engine.tileData import TileData
+
 import csv
+import json
 import os
 
 class MapData():
@@ -9,6 +11,9 @@ class MapData():
 
         self.tileset: list[pygame.Surface] = []
         self.__makeTileset()
+
+        with open(f'.\\engine\\maps\\{self.mapName}\\TilesetData.json', 'r') as _json:
+            self.tilesetData: dict[dict[str, str]] = json.load(_json)
 
         self.layers: list[list[list[list[int]]]] = []
         self.__makeLayerData()
@@ -59,12 +64,12 @@ class MapData():
 
                     for _col in _row:
                         if _col != '-1':
-                            self.tiles.append(TileData([_x // 16, _y // 16], [_x + (TILE_SIZE * 32), _y], self.tileset[int(_col)], _col))
+                            self.tiles.append(TileData([_x // 16, _y // 16], [_x + (TILE_SIZE * 32), _y], self.tileset[int(_col)], _col, self.tilesetData[_col]))
                         _x += TILE_SIZE // 2
                     _y += TILE_SIZE // 2
                     _x: int = 0
 
-    def drawMap(self, x_offset: int, y_offset: int) -> None:
+    def drawMap(self) -> None:
         self.mapImage.fill('#000000')
         for _tile in self.tiles:
-            _tile.draw(self.mapImage, x_offset, y_offset)
+            _tile.draw(self.mapImage)

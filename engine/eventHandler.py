@@ -1,10 +1,14 @@
 from engine.settings import *
 from engine.keyHandler import KeyHandler
 from engine.mapHandler import MapHandler
+from engine.tileData import TileData
+
+import math
 
 class EventHandler():
     def __init__(self, client) -> None:
-        self.client: object = client
+        from client import Main
+        self.client: Main = client
         
         self.keyHandler: KeyHandler = KeyHandler(client)
         self.mapHandler: MapHandler = MapHandler(client)
@@ -12,7 +16,7 @@ class EventHandler():
         self.drag: bool = False
         self.offset: pygame.Rect = pygame.Rect(0, 0, 0, 0)
 
-        self.currentGrid: list[int] = [-1, -1]
+        self.currentTile: TileData = None
 
     def checkEvent(self, delta: float) -> None:
 
@@ -40,13 +44,31 @@ class EventHandler():
 
         self.mapHandler.draw(self.offset.x, self.offset.y)
 
-        _mousePos = pygame.mouse.get_pos()
-        _mouseScale = [display_width / SCREEN_WIDTH, display_height / SCREEN_HEIGHT]
-        _mousePos = [_mousePos[0] / _mouseScale[0], _mousePos[1] / _mouseScale[1]]
+        self.checkTile()
 
-        pygame.draw.rect(self.client.screen, '#ff00ff', pygame.Rect(_mousePos[0], _mousePos[1], 10, 10))
+    def checkTile(self):
+        self.currentTile = None
 
+        _mousePos: list[float] = pygame.mouse.get_pos()
+        _mouseScale: list[float] = [display_width / SCREEN_WIDTH, display_height / SCREEN_HEIGHT]
+        _mousePos: list[float] = [_mousePos[0] / _mouseScale[0], _mousePos[1] / _mouseScale[1]]
+
+        _collidedTiles: list[TileData] = []
         for _tile in self.mapHandler.currentMap.tiles:
             if _tile.rect.collidepoint(_mousePos):
-               self.currentGrid = _tile.gridCords
+                _collidedTiles.append(_tile)
 
+        _closestTile: TileData = None
+        _tileDist: float = 99999
+
+        for _tile in _collidedTiles:
+            _x: float = _tile.rect.centerx - _mousePos[0]
+            _y: float = _tile.rect.centery - _mousePos[1]
+            _dist: float = math.sqrt(pow(_x, 2) + pow(_y, 2))
+
+            if _dist < _tileDist:
+               _closestTile = _tile
+               _tileDist = _dist
+               
+        if _closestTile:
+            self.currentTile = _closestTile
